@@ -5,20 +5,31 @@ using UnityEngine;
 
 public class Interstitial : MonoBehaviour
 {
-
     // These ad units are configured to always serve test ads.
-#if UNITY_ANDROID
-    private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
-#elif UNITY_IPHONE
-  private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
-#else
-  private string _adUnitId = "unused";
-#endif
+    //#if UNITY_ANDROID
+    [SerializeField] private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
+    //#elif UNITY_IPHONE
+    //  private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
+    //#else
+    //  private string _adUnitId = "unused";
+    //#endif
 
     private InterstitialAd interstitialAd;
+    public static Interstitial Instance;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(Instance);
+        }
+    }
 
     public void Start()
     {
+        MobileAds.RaiseAdEventsOnUnityMainThread = true;
+
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
@@ -26,15 +37,8 @@ public class Interstitial : MonoBehaviour
 
             LoadInterstitialAd();
         });
-
-
-        //ShowAd();
     }
 
-
-    /// <summary>
-    /// Loads the interstitial ad.
-    /// </summary>
     public void LoadInterstitialAd()
     {
         // Clean up the old ad before loading a new one.
@@ -55,8 +59,8 @@ public class Interstitial : MonoBehaviour
         InterstitialAd.Load(_adUnitId, adRequest,
             (InterstitialAd ad, LoadAdError error) =>
             {
-              // if error is not null, the load request failed.
-              if (error != null || ad == null)
+                // if error is not null, the load request failed.
+                if (error != null || ad == null)
                 {
                     Debug.LogError("interstitial ad failed to load an ad " +
                                    "with error : " + error);
@@ -79,7 +83,8 @@ public class Interstitial : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Interstitial ad is not ready yet.");
+            //Debug.LogError("Interstitial ad is not ready yet.");
+            LoadInterstitialAd();
         }
     }
 

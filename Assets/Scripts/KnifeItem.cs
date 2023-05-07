@@ -65,10 +65,11 @@ public class KnifeItem : MonoBehaviour
     public int Price => price;
     public Image KnifeImage => knifeImage;
 
-    public void Setup (int index, Shop shop)
+    public void Setup (int index, Shop shop, int price)
     {
         this.shop = shop;
         Index = index;
+        this.price = price;
         knife = this.shop.knifeList[Index];
         knifeImage.sprite = knife.GetComponent<SpriteRenderer>().sprite;
         UpdateUI();

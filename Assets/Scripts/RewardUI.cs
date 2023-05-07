@@ -47,7 +47,7 @@ public class RewardUI : MonoBehaviour
     private IEnumerator RewardCR()
     {
         rewardPanel.SetActive(true);
-        yield return new WaitForSeconds(1.6f);
+        yield return new WaitForSeconds(0.3f); //1.6
         SoundManager.Instance.PlayAppleReward();
 
         Instantiate(applePS);

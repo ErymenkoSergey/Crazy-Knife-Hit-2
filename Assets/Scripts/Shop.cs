@@ -43,7 +43,7 @@ public class Shop : MonoBehaviour
         for (int i = 0; i < knifeList.Length; i++)
         {
             KnifeItem item = Instantiate(itemPrefab, shopContainer.transform);
-            item.Setup(i, this);
+            item.Setup(i, this, knifeList[i].PriceKnife);
             shopItems.Add(item);
         }
         shopItems[GameManager.Instance.SelectedKnife].OnClick();

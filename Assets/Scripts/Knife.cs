@@ -5,9 +5,12 @@ using UnityEngine;
 public class Knife : MonoBehaviour
 {
     [SerializeField] private float speed;
+    [SerializeField] private int _price;
 
     public Rigidbody2D myRigidbody2D;
     public bool IsReleased { get; set; }
+
+    public int PriceKnife => _price;
 
     //[SerializeField] private ParticleSystem wheelParticle; // партиклы для разрушения бревна
     public bool Hit { get; set; }
