@@ -14,7 +14,7 @@ public class MainManager : MonoBehaviour
     public Image SelectedKnife => selectedKnife;
     public void Rate()
     {
-        Application.OpenURL(gameURL + appID);
+        //Application.OpenURL(gameURL + appID);
         SoundManager.Instance.PlayButton();
         Debug.Log("Запуск музыки");
     }
@@ -28,6 +28,7 @@ public class MainManager : MonoBehaviour
     }
     public void Quit()
     {
+        Interstitial.Instance?.ShowInterstitialAd();
         Application.Quit();
         Debug.Log("Выход!");
     }

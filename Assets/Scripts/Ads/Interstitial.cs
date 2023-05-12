@@ -1,18 +1,20 @@
 using GoogleMobileAds;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Interstitial : MonoBehaviour
 {
-    // These ad units are configured to always serve test ads.
-    //#if UNITY_ANDROID
-    [SerializeField] private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
-    //#elif UNITY_IPHONE
-    //  private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
-    //#else
-    //  private string _adUnitId = "unused";
-    //#endif
+    // These ad units are configured to always serve test ads. // ca-app-pub-3940256099942544/1033173712 for test 
+#if UNITY_ANDROID
+     private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
+#elif UNITY_IPHONE
+      private string _adUnitId = "ca-app-pub-1595077627022236/3464572794";
+#else
+      private string _adUnitId = "unused";
+#endif
 
     private InterstitialAd interstitialAd;
     public static Interstitial Instance;
@@ -24,19 +26,24 @@ public class Interstitial : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(Instance);
         }
+
+        MobileAds.RaiseAdEventsOnUnityMainThread = true; // Main Thread
     }
 
     public void Start()
     {
-        MobileAds.RaiseAdEventsOnUnityMainThread = true;
 
-        // Initialize the Google Mobile Ads SDK.
-        MobileAds.Initialize((InitializationStatus initStatus) =>
-        {
-            // This callback is called once the MobileAds SDK is initialized.
 
-            LoadInterstitialAd();
-        });
+        MobileAds.Initialize(HandleInitCompleteAction);
+
+
+        StartCoroutine(LoadingAd());
+    }
+
+    private IEnumerator LoadingAd()
+    {
+        yield return new WaitForSeconds(5f);
+        LoadInterstitialAd();
     }
 
     public void LoadInterstitialAd()
@@ -45,7 +52,7 @@ public class Interstitial : MonoBehaviour
         if (interstitialAd != null)
         {
             interstitialAd.Destroy();
-            interstitialAd = null;
+            //interstitialAd = null;
         }
 
         Debug.Log("Loading the interstitial ad.");
@@ -56,7 +63,7 @@ public class Interstitial : MonoBehaviour
                 .Build();
 
         // send the request to load the ad.
-        InterstitialAd.Load(_adUnitId, adRequest,
+        InterstitialAd.Load(_adUnitId, CreateAdRequest(),
             (InterstitialAd ad, LoadAdError error) =>
             {
                 // if error is not null, the load request failed.
@@ -74,7 +81,14 @@ public class Interstitial : MonoBehaviour
             });
     }
 
-    public void ShowAd()
+    private AdRequest CreateAdRequest()
+    {
+        return new AdRequest.Builder()
+            .AddKeyword("unity-admob-sample")
+            .Build();
+    }
+
+    public void ShowInterstitialAd()
     {
         if (interstitialAd != null && interstitialAd.CanShowAd())
         {
@@ -84,67 +98,32 @@ public class Interstitial : MonoBehaviour
         else
         {
             //Debug.LogError("Interstitial ad is not ready yet.");
+            DestroyInterstitialAd();
             LoadInterstitialAd();
         }
     }
 
-    private void RegisterEventHandlers(InterstitialAd ad)
+    public void DestroyInterstitialAd()
     {
-        // Raised when the ad is estimated to have earned money.
-        ad.OnAdPaid += (AdValue adValue) =>
+        if (interstitialAd != null)
         {
-            Debug.Log(String.Format("Interstitial ad paid {0} {1}.",
-                adValue.Value,
-                adValue.CurrencyCode));
-        };
-        // Raised when an impression is recorded for an ad.
-        ad.OnAdImpressionRecorded += () =>
-        {
-            Debug.Log("Interstitial ad recorded an impression.");
-        };
-        // Raised when a click is recorded for an ad.
-        ad.OnAdClicked += () =>
-        {
-            Debug.Log("Interstitial ad was clicked.");
-        };
-        // Raised when an ad opened full screen content.
-        ad.OnAdFullScreenContentOpened += () =>
-        {
-            Debug.Log("Interstitial ad full screen content opened.");
-        };
-        // Raised when the ad closed full screen content.
-        ad.OnAdFullScreenContentClosed += () =>
-        {
-            Debug.Log("Interstitial ad full screen content closed.");
-        };
-        // Raised when the ad failed to open full screen content.
-        ad.OnAdFullScreenContentFailed += (AdError error) =>
-        {
-            Debug.LogError("Interstitial ad failed to open full screen content " +
-                           "with error : " + error);
-        };
+            interstitialAd.Destroy();
+        }
     }
 
-    //private void RegisterReloadHandler(InterstitialAd ad)
-    //{
-    //    // Raised when the ad closed full screen content.
-    //    ad.OnAdFullScreenContentClosed += ()
-    //{
-    //        Debug.Log("Interstitial Ad full screen content closed.");
+    private void HandleInitCompleteAction(InitializationStatus initstatus)
+    {
+        Debug.Log("Initialization complete.");
 
-    //        // Reload the ad so that we can show another as soon as possible.
-    //        LoadInterstitialAd();
-    //    };
-    //    // Raised when the ad failed to open full screen content.
-    //    ad.OnAdFullScreenContentFailed += (AdError error) =>
-    //    {
-    //        Debug.LogError("Interstitial ad failed to open full screen content " +
-    //                       "with error : " + error);
-
-    //        // Reload the ad so that we can show another as soon as possible.
-    //        LoadInterstitialAd();
-    //    };
-    //}
+        // Callbacks from GoogleMobileAds are not guaranteed to be called on
+        // the main thread.
+        // In this example we use MobileAdsEventExecutor to schedule these calls on
+        // the next Update() loop.
+        MobileAdsEventExecutor.ExecuteInUpdate(() =>
+        {
+           // statusText.text = "Initialization complete.";
+        });
+    }
 
     private void OnDestroy()
     {

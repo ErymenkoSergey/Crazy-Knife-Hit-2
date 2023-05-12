@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
-    [SerializeField] private bool _isOnADS = true;
     [Header("UI Settings")]
 
     [SerializeField] private Text scoreText;
@@ -69,10 +68,8 @@ public class UIManager : MonoBehaviour
 
     public void GameOver()
     {
-        if (_isOnADS)
-        {
-            Interstitial.Instance?.ShowAd();
-        }
+        Interstitial.Instance.ShowInterstitialAd();
+        
         gameOverPanel.SetActive(true);
         stageContainer.SetActive(false);
     }
